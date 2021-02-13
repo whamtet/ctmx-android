@@ -6,7 +6,6 @@ import androidx.webkit.WebViewAssetLoader;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;

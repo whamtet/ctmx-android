@@ -6,7 +6,4 @@
          {:main 'android.core
           :output-to (str prefix "out/android.js")
           :output-dir (str prefix "out")
-          :asset-path "out"
-          :foreign-libs [{:file "htmx.js"
-                          :provides ["htmx"]
-                          :module-type :commonjs}]})
+          :asset-path "out"})

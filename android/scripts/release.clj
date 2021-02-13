@@ -7,8 +7,5 @@
            {:output-to "release/android.js"
             :output-dir "release"
             :optimizations :simple
-            :verbose true
-            :foreign-libs [{:file "htmx.js"
-                            :provides ["htmx"]
-                            :module-type :commonjs}]})
+            :verbose true})
   (println "... done. Elapsed" (/ (- (System/nanoTime) start) 1e9) "seconds"))
