@@ -12,6 +12,11 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import org.json.simple.JSONObject;
+
+import java.util.Optional;
+import java.util.function.Function;
+
 public class MainActivity extends AppCompatActivity {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -37,9 +42,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setContentView(myWebView);
-
+        Function<Optional<JSONObject>, String> f = o -> o.map(o2 -> o2.toJSONString()).orElse("");
+        AndroidTask.addInvoke(myWebView, f, "invoke");
         myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
-
     }
 
 }
