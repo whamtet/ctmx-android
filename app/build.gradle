@@ -45,8 +45,8 @@ dependencies {
     implementation ('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
-
-    api project(":backend:imap")
+    implementation 'com.sun.mail:android-mail:1.6.2'
+    implementation 'com.sun.mail:android-activation:1.6.2'
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'

@@ -1,8 +1,2 @@
-include ':mail:common'
-include ':mail:protocols:imap'
-include ':backend:imap'
-include ':mail:protocols:smtp'
-include ':mail:testing'
-include ':backend:api'
 include ':app'
 rootProject.name = "My Application2"

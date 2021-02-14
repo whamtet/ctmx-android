@@ -22,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        (new ImapTask()).start();
 
         WebView myWebView = new WebView(this.getApplicationContext());
         myWebView.getSettings().setJavaScriptEnabled(true);
