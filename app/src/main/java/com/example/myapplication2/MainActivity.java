@@ -6,6 +6,7 @@ import androidx.webkit.WebViewAssetLoader;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -22,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        (new ImapTask()).start();
 
         WebView myWebView = new WebView(this.getApplicationContext());
         myWebView.getSettings().setJavaScriptEnabled(true);
@@ -42,8 +42,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         setContentView(myWebView);
-        Function<Optional<JSONObject>, String> f = o -> o.map(o2 -> o2.toJSONString()).orElse("");
-        AndroidTask.addInvoke(myWebView, f, "invoke");
+        // add tasks here
+        Function<JSONObject, String> f = new GetEmails();
+        AndroidTask.addInvoke(myWebView, f, "emails");
         myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
     }
 
