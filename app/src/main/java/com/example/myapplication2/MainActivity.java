@@ -6,15 +6,12 @@ import androidx.webkit.WebViewAssetLoader;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.json.simple.JSONObject;
-
-import java.util.Optional;
 import java.util.function.Function;
 
 public class MainActivity extends AppCompatActivity {

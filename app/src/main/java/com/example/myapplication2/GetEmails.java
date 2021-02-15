@@ -57,7 +57,7 @@ public class GetEmails implements Function<JSONObject, String> {
 
         Folder folder = store.getFolder("INBOX");
         folder.open(Folder.READ_ONLY);
-        int messagesToGet = Math.min(folder.getMessageCount(), 10);
+        int messagesToGet = Math.min(folder.getMessageCount(), 1);
         Message[] msgs = folder.getMessages(1, messagesToGet);
 
         List<JSONAware> out = new ArrayList<>();

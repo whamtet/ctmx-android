@@ -6,6 +6,7 @@ import android.webkit.WebView;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import android.util.Base64;
 import java.util.function.Function;
 
 public class AndroidTask {
@@ -25,13 +26,13 @@ public class AndroidTask {
                     JSONParser parser = new JSONParser();
                     try {
                         JSONObject o = (JSONObject) parser.parse(jsonArgs);
-                        result = "'" + f.apply(o) + "'";
+                        result = Base64.encodeToString(f.apply(o).getBytes(), Base64.NO_WRAP);
                         method = "resolve";
                     } catch (Exception e) {
                         result = e.getMessage();
                         method = "reject";
                     }
-                    String src = String.format("%s('%s', %s)", method, cb, result);
+                    String src = String.format("%s('%s', '%s')", method, cb, result);
                     // do later
                     webView.post(() -> webView.evaluateJavascript(src, null));
                 });

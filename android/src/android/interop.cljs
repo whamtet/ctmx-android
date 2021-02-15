@@ -10,12 +10,12 @@
 
 (set! js/resolve
       (fn [s val]
-        ((-> @resolutions (get s) first) val)
+        ((-> @resolutions (get s) first) (-> val js/atob from-json))
         (swap! resolutions dissoc s)))
 
 (set! js/reject
       (fn [s val]
-        ((-> @resolutions (get s) second) val)
+        ((-> @resolutions (get s) second) (js/atob val))
         (swap! resolutions dissoc s)))
 
 (defn make-promise [s]
