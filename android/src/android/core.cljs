@@ -24,6 +24,21 @@
    (hidden "email-data" (pr-str email-data))
    content])
 
+(defn login [id username password error?]
+  [:form.mt-4 {:id id :hx-post "panel" :hx-indicator "#spinner"}
+   [:div.input-group.mb-2
+    [:input.form-control
+     {:type "text" :placeholder "Username" :name "username" :value username :required true}]
+    [:span.input-group-text "@gmail.com"]]
+   [:div.input-group.mb-2
+    [:input.form-control
+     {:type "password" :placeholder "Password" :name "password" :value password :required true}]]
+   (when error?
+     [:div.error-message.mb-2 "Invalid Credentials"])
+   [:div.input-group
+    [:input.form-control {:type "submit" :value "Login"}]]
+   util/loading])
+
 (ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i]
   (ctmx/with-req req
     (case request-method
@@ -35,7 +50,9 @@
                      username
                      password
                      emails
-                     (emails/email-panel emails)))))
+                     (emails/email-panel emails)))
+                 (fn [_]
+                   (login id username password true))))
       :put
       (-> (interop/android-json "emails" {:start (count email-data)})
           (.then (fn [emails]
@@ -60,17 +77,7 @@
         password
         email-data
         (emails/email-panel email-data))
-      [:form.mt-4 {:id id :hx-post "panel" :hx-indicator "#spinner"}
-       [:div.input-group.mb-2
-        [:input.form-control
-         {:type "text" :placeholder "Username" :name "username" :value username :required true}]
-        [:span.input-group-text "@gmail.com"]]
-       [:div.input-group.mb-2
-        [:input.form-control
-         {:type "password" :placeholder "Password" :name "password" :value password :required true}]]
-       [:div.input-group
-        [:input.form-control {:type "submit" :value "Login"}]]
-       util/loading])))
+      (login id "" "" false))))
 
 (def req {:params {}})
 
