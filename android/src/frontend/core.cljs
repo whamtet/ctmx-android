@@ -1,10 +1,12 @@
 (ns frontend.core
+  (:require
+    [frontend.press :as press])
   (:refer-clojure :exclude [delay]))
 
 (defn activate-images []
   (println "activating images")
   (doseq [img (js/document.getElementsByTagName "img")]
-    (js/console.log img)))
+    (press/onpress img #(println "pressed"))))
 
 (defn after-settle []
   (when (js/document.getElementById "individual-email")
