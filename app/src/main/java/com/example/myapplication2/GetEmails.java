@@ -4,6 +4,7 @@ import com.sun.mail.imap.IMAPBodyPart;
 
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import javax.mail.URLName;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
 
-public class GetEmails implements Function<JSONObject, String> {
+public class GetEmails implements Function<String, String> {
 
     private final Session session;
 
@@ -100,8 +101,9 @@ public class GetEmails implements Function<JSONObject, String> {
         return out;
     }
 
-    public String apply(JSONObject o) {
+    public String apply(String s) {
         try {
+            JSONObject o = (JSONObject) (new JSONParser()).parse(s);
             String user = (String) o.get("username");
             String password = (String) o.get("password");
             return JSONUtil.stringifyList(getData(user, password));

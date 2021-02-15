@@ -9,16 +9,18 @@
 (def from-json #(-> % js/JSON.parse js->clj walk/keywordize-keys))
 
 (set! js/resolve
-      (fn [s val]
-        ((-> @resolutions (get s) first) (-> val js/atob from-json))
-        (swap! resolutions dissoc s)))
+      (fn [cb]
+        ((-> @resolutions (get cb) first) (from-json (js/androidBridge.getResult cb)))
+        (swap! resolutions dissoc cb)))
 
 (set! js/reject
-      (fn [s val]
-        ((-> @resolutions (get s) second) (js/atob val))
-        (swap! resolutions dissoc s)))
+      (fn [cb]
+        ((-> @resolutions (get cb) second) (js/androidBridge.getResult cb))
+        (swap! resolutions dissoc cb)))
 
-(defn make-promise [s]
-  (js/Promise.
-    (fn [res rej]
-      (swap! resolutions assoc s [res rej]))))
+(defn android-promise [fName data]
+  (let [cb (str (gensym))]
+    (js/Promise.
+      (fn [res rej]
+        (swap! resolutions assoc cb [res rej])
+        (js/androidBridge.invoke fName cb (to-json data))))))

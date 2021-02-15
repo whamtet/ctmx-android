@@ -1,12 +1,12 @@
 (ns android.core
   (:require
-    android.interop
+    [android.interop :as interop]
+    [android.util :as util]
     cljs.reader
     [ctmx.intercept :as intercept]
     ctmx.rt
     hiccups.runtime)
   (:require-macros
-    [android.interop :as interop]
     [ctmx.core :as ctmx]
     [hiccups.core :as hiccups]))
 
@@ -24,7 +24,7 @@
    [:div subject]
    [:div
     [:a {:hx-patch "panel" :href "javascript: void(0)"}
-     (truncate text)]]
+     (-> html util/inner-text .trim truncate)]]
    [:hr]])
 
 (ctmx/defcomponent email-panel [req emails]
@@ -39,7 +39,7 @@
   (ctmx/with-req req
     (case request-method
       :post
-      (-> (interop/android-promise emails {:username username :password password})
+      (-> (interop/android-promise "emails" {:username username :password password})
           (.then (fn [emails]
                    [:form {:id id :hx-target "this"}
                     (hidden "username" username)

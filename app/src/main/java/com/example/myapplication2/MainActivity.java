@@ -40,8 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(myWebView);
         // add tasks here
-        Function<JSONObject, String> f = new GetEmails();
-        AndroidTask.addInvoke(myWebView, f, "emails");
+        AndroidBridge bridge = new AndroidBridge(myWebView);
+        bridge.addFunction("emails", new GetEmails());
         myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
     }
 
