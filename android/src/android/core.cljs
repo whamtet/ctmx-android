@@ -87,3 +87,5 @@
 (set! (.-defaultSwapStyle js/htmx.config) "outerHTML")
 (set! (.-includeIndicatorStyles js/htmx.config) false)
 (main)
+(frontend/main)
+

@@ -27,11 +27,10 @@
    [:button.btn.btn-primary.mt-3
     {:hx-put "panel" :hx-indicator "#spinner"}
     "More..."]
-   [:div
-    util/loading]])
+   [:div util/loading]])
 
 (defn individual-email [email-data i]
-  [:div
+  [:div#individual-email
    [:button.btn.btn-primary.my-2
     {:hx-delete "panel"}
     "Back"]
