@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -22,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         WebView myWebView = new WebView(this.getApplicationContext());
+        myWebView.getSettings().setBuiltInZoomControls(true);
         myWebView.getSettings().setJavaScriptEnabled(true);
+        myWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
 
         // add implementation "androidx.webkit:webkit:1.2.0" to build.gradle
         final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()

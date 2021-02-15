@@ -1,6 +1,7 @@
 (ns android.core
   (:require
     [android.interop :as interop]
+    [android.ui.emails :as emails]
     [android.util :as util]
     cljs.reader
     [ctmx.intercept :as intercept]
@@ -12,42 +13,42 @@
 
 (enable-console-print!)
 
-(def ^:private limit 60)
-(defn- truncate [text]
-  (if (-> text .-length (> limit))
-    (str (.substring text 0 (- limit 3)) "...")
-    text))
-
-(defn- email-div [i {:keys [from subject text]}]
-  [:div
-   [:div from]
-   [:div subject]
-   [:div
-    [:a {:hx-patch "panel" :href "javascript: void(0)"}
-     (-> html util/inner-text .trim truncate)]]
-   [:hr]])
-
-(ctmx/defcomponent email-panel [req emails]
-  [:div {:id id}
-   [:h5 "Emails"]
-   (map-indexed email-div emails)])
-
 (defn hidden [name value]
   [:input {:type "hidden" :name name :value value}])
 
-(ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data]
+(defn- state-panel [id username password email-data content]
+  [:form {:id id :hx-target "this"}
+   (hidden "username" username)
+   (hidden "password" password)
+   (hidden "email-data" (pr-str email-data))
+   content])
+
+(ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i]
   (ctmx/with-req req
     (case request-method
       :post
       (-> (interop/android-promise "emails" {:username username :password password})
           (.then (fn [emails]
-                   [:form {:id id :hx-target "this"}
-                    (hidden "username" username)
-                    (hidden "password" password)
-                    (hidden "email-data" (pr-str emails))
-                    (email-panel req emails)])))
+                   (state-panel
+                     id
+                     username
+                     password
+                     emails
+                     (emails/email-panel emails)))))
       :patch
-      [:div (pr-str email-data)]
+      (state-panel
+        id
+        username
+        password
+        email-data
+        (emails/individual-email email-data i))
+      :delete
+      (state-panel
+        id
+        username
+        password
+        email-data
+        (emails/email-panel email-data))
       [:div
        [:form.mt-4 {:id id :hx-post "panel"}
         [:div.input-group.mb-2
