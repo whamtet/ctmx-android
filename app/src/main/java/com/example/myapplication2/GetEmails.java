@@ -1,7 +1,5 @@
 package com.example.myapplication2;
 
-import android.util.Log;
-
 import com.sun.mail.imap.IMAPBodyPart;
 
 import org.json.simple.JSONAware;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
+import javax.mail.Address;
 import javax.mail.BodyPart;
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -20,6 +19,7 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMultipart;
 
 public class GetEmails implements Function<JSONObject, String> {
@@ -49,6 +49,16 @@ public class GetEmails implements Function<JSONObject, String> {
             return o.toJSONString();
         }
     }
+    private String addressText(Address[] addresses) {
+        StringBuilder sb = new StringBuilder();
+        for (Address address : addresses) {
+            if (address instanceof InternetAddress) {
+                InternetAddress address2 = (InternetAddress) address;
+                sb.append(address2.toString() + "; ");
+            }
+        }
+        return sb.toString();
+    }
     private List<JSONAware> getData(String user, String password) throws MessagingException, IOException {
 
         URLName url = new URLName("imap", "imap.gmail.com", 993, "INBOX", user, password);
@@ -64,7 +74,7 @@ public class GetEmails implements Function<JSONObject, String> {
 
         for (Message msg : msgs) {
             MessageInfo info = new MessageInfo();
-            info.from = msg.getFrom().toString();
+            info.from = addressText(msg.getFrom());
             info.subject = msg.getSubject();
             if (msg.getContent() instanceof MimeMultipart) {
                 MimeMultipart content = (MimeMultipart) msg.getContent();
