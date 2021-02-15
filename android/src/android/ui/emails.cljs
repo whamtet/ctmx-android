@@ -23,11 +23,16 @@
 (defn email-panel [emails]
   [:div
    [:h5 "Emails"]
-   (map-indexed email-div emails)])
+   (map-indexed email-div emails)
+   [:button.btn.btn-primary.mt-3
+    {:hx-put "panel" :hx-indicator "#spinner"}
+    "More..."]
+   [:div
+    util/loading]])
 
 (defn individual-email [email-data i]
   [:div
-   [:button.btn.btn-primary.mt-3
+   [:button.btn.btn-primary.my-2
     {:hx-delete "panel"}
     "Back"]
    [:div

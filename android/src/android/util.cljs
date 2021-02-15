@@ -10,3 +10,6 @@
       (.parseFromString html "text/html")
       .-body
       .-textContent))
+
+(def loading
+  [:img#spinner {:src "loading.gif"}])

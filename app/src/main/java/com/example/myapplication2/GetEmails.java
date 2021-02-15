@@ -1,5 +1,7 @@
 package com.example.myapplication2;
 
+import android.util.Log;
+
 import com.sun.mail.imap.IMAPBodyPart;
 
 import org.json.simple.JSONAware;
@@ -25,18 +27,28 @@ import javax.mail.internet.MimeMultipart;
 
 public class GetEmails implements Function<String, String> {
 
-    private final Session session;
+    private static final int PAGE_SIZE = 3;
 
-    public GetEmails() {
+    private Folder folder;
+
+    private void setFolder(String user, String password) throws MessagingException {
+
         Properties p = new Properties();
         p.setProperty("mail.imap.ssl.enable", "true");
-        session = Session.getDefaultInstance(p);
+        Session session = Session.getDefaultInstance(p);
+
+        URLName url = new URLName("imap", "imap.gmail.com", 993, "INBOX", user, password);
+        Store store = session.getStore(url);
+        store.connect();
+
+        folder = store.getFolder("INBOX");
+        folder.open(Folder.READ_ONLY);
+
     }
 
     private static class MessageInfo implements JSONAware {
         public String from = "";
         public String subject = "";
-        public String text = "";
         public String html = "";
 
         @Override
@@ -44,7 +56,6 @@ public class GetEmails implements Function<String, String> {
             JSONObject o = new JSONObject();
             o.put("from", from);
             o.put("subject", subject);
-            o.put("text", text);
             o.put("html", html);
 
             return o.toJSONString();
@@ -60,18 +71,18 @@ public class GetEmails implements Function<String, String> {
         }
         return sb.toString();
     }
-    private List<JSONAware> getData(String user, String password) throws MessagingException, IOException {
-
-        URLName url = new URLName("imap", "imap.gmail.com", 993, "INBOX", user, password);
-        Store store = session.getStore(url);
-        store.connect();
-
-        Folder folder = store.getFolder("INBOX");
-        folder.open(Folder.READ_ONLY);
-        int messagesToGet = Math.min(folder.getMessageCount(), 1);
-        Message[] msgs = folder.getMessages(1, messagesToGet);
+    private List<JSONAware> getData(int index) throws MessagingException, IOException {
 
         List<JSONAware> out = new ArrayList<>();
+
+        final int totalMessages = folder.getMessageCount();
+        if (index >= totalMessages) {
+            // we've gotten it all
+            return out;
+        }
+
+        int messagesToGet = Math.min(totalMessages, index + PAGE_SIZE);
+        Message[] msgs = folder.getMessages(index + 1, messagesToGet);
 
         for (Message msg : msgs) {
             MessageInfo info = new MessageInfo();
@@ -87,13 +98,10 @@ public class GetEmails implements Function<String, String> {
                         if (contentType.startsWith("TEXT/HTML")) {
                             info.html = (String) part.getContent();
                         }
-                        if (contentType.startsWith("TEXT/PLAIN")) {
-                            info.text = (String) part.getContent();
-                        }
                     }
                 }
             } else {
-                info.text = msg.getContentType();
+                info.html = msg.getContentType();
             }
             out.add(info);
         }
@@ -104,9 +112,11 @@ public class GetEmails implements Function<String, String> {
     public String apply(String s) {
         try {
             JSONObject o = (JSONObject) (new JSONParser()).parse(s);
-            String user = (String) o.get("username");
-            String password = (String) o.get("password");
-            return JSONUtil.stringifyList(getData(user, password));
+            if (folder == null) {
+                setFolder((String) o.get("username"), (String) o.get("password"));
+            }
+            Long index = o.containsKey("start") ? (Long) o.get("start") : 0;
+            return JSONUtil.stringifyList(getData(index.intValue()));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

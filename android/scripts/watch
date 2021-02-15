@@ -1,4 +1,5 @@
 #!/bin/sh
 cp index.html ../app/src/main/assets/www/
 cp bootstrap.min.css ../app/src/main/assets/www/
+cp loading.gif ../app/src/main/assets/www/
 rlwrap lein trampoline run -m clojure.main scripts/watch.clj
