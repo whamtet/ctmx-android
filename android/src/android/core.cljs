@@ -37,7 +37,7 @@
                      emails
                      (emails/email-panel emails)))))
       :put
-      (-> (interop/android-promise "emails" {:start (count email-data)})
+      (-> (interop/android-json "emails" {:start (count email-data)})
           (.then (fn [emails]
                    (let [emails (vec (concat email-data emails))]
                      (state-panel

@@ -1,5 +1,6 @@
 package com.example.myapplication2;
 
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
@@ -39,6 +40,7 @@ public class AndroidBridge {
                 result = f.apply(arg);
                 method = "resolve";
             } catch (Exception e) {
+                Log.i("AndroidBridge", "caught here");
                 result = e.getMessage();
                 method = "reject";
             }
