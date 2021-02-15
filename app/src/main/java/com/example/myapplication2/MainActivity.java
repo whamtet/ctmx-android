@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         // add tasks here
         AndroidBridge bridge = new AndroidBridge(myWebView);
         bridge.addFunction("emails", new GetEmails());
+        bridge.addFunction("share", new ShareImage(this));
         myWebView.loadUrl("https://appassets.androidplatform.net/assets/www/index.html");
     }
 

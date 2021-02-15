@@ -3,7 +3,7 @@
     [clojure.walk :as walk]))
 
 (def to-json #(-> % clj->js js/JSON.stringify))
-(def from-json #(-> % js/JSON.parse js->clj walk/keywordize-keys))
+(def from-json #(when (not-empty %) (-> % js/JSON.parse js->clj walk/keywordize-keys)))
 
 (defn inner-text [html]
   (-> (js/DOMParser.)

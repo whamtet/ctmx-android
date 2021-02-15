@@ -19,4 +19,7 @@
     (js/Promise.
       (fn [res rej]
         (swap! resolutions assoc cb [res rej])
-        (js/androidBridge.invoke fName cb (util/to-json data))))))
+        (js/androidBridge.invoke fName cb data)))))
+
+(defn android-json [fName data]
+  (android-promise fName (util/to-json data)))

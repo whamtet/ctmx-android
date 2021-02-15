@@ -28,7 +28,7 @@
   (ctmx/with-req req
     (case request-method
       :post
-      (-> (interop/android-promise "emails" {:username username :password password})
+      (-> (interop/android-json "emails" {:username username :password password})
           (.then (fn [emails]
                    (state-panel
                      id
