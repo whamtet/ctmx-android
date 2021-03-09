@@ -6,12 +6,11 @@
     [android.util :as util]
     cljs.reader
     [ctmx.intercept :as intercept]
+    [ctmx.render :as render]
     ctmx.rt
-    [frontend.core :as frontend]
-    hiccups.runtime)
+    [frontend.core :as frontend])
   (:require-macros
-    [ctmx.core :as ctmx]
-    [hiccups.core :as hiccups]))
+    [ctmx.core :as ctmx]))
 
 (enable-console-print!)
 
@@ -26,7 +25,7 @@
    content])
 
 (defn login [id username password error?]
-  [:form.mt-4 {:id id :hx-post "panel" :hx-indicator "#spinner"}
+  [:form.mt-4 {:id id :hx-post "panel:login" :hx-indicator "#spinner"}
    [:div.input-group.mb-2
     [:input.form-control
      {:type "text" :placeholder "Username" :name "username" :value username :required true}]]
@@ -39,52 +38,51 @@
     [:input.form-control {:type "submit" :value "Login"}]]
    util/loading])
 
-(ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i]
-  (ctmx/with-req req
-    (case request-method
-      :post
-      (-> (interop/android-json "emails" {:username username :password password})
-          (.then (fn [emails]
-                   (storage/set-password password) ;; store successful password
+(ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i command]
+  (case command
+    "login"
+    (-> (interop/android-json "emails" {:username username :password password})
+        (.then (fn [emails]
+                 (storage/set-password password) ;; store successful password
+                 (state-panel
+                   id
+                   username
+                   password
+                   emails
+                   (emails/email-panel emails)))
+               (fn [_]
+                 (login id username password true))))
+    "next"
+    (-> (interop/android-json "emails" {:start (count email-data)})
+        (.then (fn [emails]
+                 (let [emails (vec (concat email-data emails))]
                    (state-panel
                      id
                      username
                      password
                      emails
-                     (emails/email-panel emails)))
-                 (fn [_]
-                   (login id username password true))))
-      :put
-      (-> (interop/android-json "emails" {:start (count email-data)})
-          (.then (fn [emails]
-                   (let [emails (vec (concat email-data emails))]
-                     (state-panel
-                       id
-                       username
-                       password
-                       emails
-                       (emails/email-panel emails))))))
-      :patch
-      (state-panel
-        id
-        username
-        password
-        email-data
-        (emails/individual-email email-data i))
-      :delete
-      (state-panel
-        id
-        username
-        password
-        email-data
-        (emails/email-panel email-data))
-      (login id "" (storage/get-password) false))))
+                     (emails/email-panel emails))))))
+    "detail"
+    (state-panel
+      id
+      username
+      password
+      email-data
+      (emails/individual-email email-data i))
+    "back"
+    (state-panel
+      id
+      username
+      password
+      email-data
+      (emails/email-panel email-data))
+    (login id "matthew@molloy.link" (storage/get-password) false)))
 
 (def req {:params {}})
 
 (ctmx/defstatic main []
   (set! js/document.body.innerHTML
-        (hiccups/html
+        (render/html
           [:div.container {:hx-ext "intercept"}
            (panel req)])))
 
