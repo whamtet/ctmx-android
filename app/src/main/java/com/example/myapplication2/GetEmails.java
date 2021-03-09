@@ -17,6 +17,7 @@ import java.util.function.Function;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
