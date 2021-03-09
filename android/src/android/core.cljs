@@ -8,7 +8,8 @@
     [ctmx.intercept :as intercept]
     [ctmx.render :as render]
     ctmx.rt
-    [frontend.core :as frontend])
+    [frontend.core :as frontend]
+    frontend.storage)
   (:require-macros
     [ctmx.core :as ctmx]))
 
@@ -17,11 +18,8 @@
 (defn hidden [name value]
   [:input {:type "hidden" :name name :value value}])
 
-(defn- state-panel [id username password email-data content]
+(defn- state-panel [id content]
   [:form.mt-2 {:id id :hx-target "this"}
-   (hidden "username" username)
-   (hidden "password" password)
-   (hidden "email-data" (pr-str email-data))
    content])
 
 (defn login [id username password error?]
@@ -44,46 +42,37 @@
   (let [password (if top-level? (storage/get-password username) password)]
     (login id username password error?)))
 
-(ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i command]
-  (case command
-    "login"
-    (-> (interop/android-json "emails" {:username username :password password})
-        (.then (fn [emails]
-                 (storage/set-password username password) ;; store successful password
-                 (state-panel
-                   id
-                   username
-                   password
-                   emails
-                   (emails/email-panel emails)))
-               (fn [_]
-                 (login-wrapper req username password true))))
-    "next"
-    (-> (interop/android-json "emails" {:start (count email-data)})
-        (.then (fn [emails]
-                 (let [emails (vec (concat email-data emails))]
+(ctmx/defcomponent ^:endpoint panel [req username password ^:int i command]
+  (let [email-data (frontend.storage/email-data)]
+    (case command
+      "login"
+      (-> (interop/android-json "emails" {:username username :password password})
+          (.then (fn [emails]
+                   (storage/set-password username password) ;; store successful password
+                   (frontend.storage/set-email-data emails)
                    (state-panel
                      id
-                     username
-                     password
-                     emails
-                     (emails/email-panel emails))))))
-    "detail"
-    (state-panel
-      id
-      username
-      password
-      email-data
-      (emails/individual-email email-data i))
-    "back"
-    (state-panel
-      id
-      username
-      password
-      email-data
-      (emails/email-panel email-data))
-    (let [[email password] (storage/get-init)]
-      (login-wrapper req email password false))))
+                     (emails/email-panel emails)))
+                 (fn [_]
+                   (login-wrapper req username password true))))
+      "next"
+      (-> (interop/android-json "emails" {:start (count email-data)})
+          (.then (fn [emails]
+                   (let [email-data (vec (concat email-data emails))]
+                     (frontend.storage/set-email-data email-data)
+                     (state-panel
+                       id
+                       (emails/email-panel email-data))))))
+      "detail"
+      (state-panel
+        id
+        (emails/individual-email email-data i))
+      "back"
+      (state-panel
+        id
+        (emails/email-panel email-data))
+      (let [[email password] (storage/get-init)]
+        (login-wrapper req email password false)))))
 
 (def req {:params {}})
 

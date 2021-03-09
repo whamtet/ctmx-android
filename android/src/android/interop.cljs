@@ -23,3 +23,11 @@
 
 (defn android-json [fName data]
   (android-promise fName (util/to-json data)))
+
+(defn android-json2 [fName data]
+  (js/Promise.resolve
+    (case fName
+      "emails"
+      [{:from "fuck@you.com"
+        :subject "fuck"
+        :html "you"}])))
