@@ -82,7 +82,8 @@
       password
       email-data
       (emails/email-panel email-data))
-    (login-wrapper req "" "" false)))
+    (let [[email password] (storage/get-init)]
+      (login-wrapper req email password false))))
 
 (def req {:params {}})
 

@@ -2,8 +2,8 @@ package com.example.myapplication2;
 
 import android.util.Log;
 
-import com.sun.mail.imap.IMAPBodyPart;
 import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.imap.IMAPMessage;
 
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
@@ -97,11 +97,25 @@ public class GetEmails implements Function<String, String> {
                 MimeMultipart content = (MimeMultipart) msg.getContent();
                 for (int i = 0; i < content.getCount(); i++) {
                     BodyPart bodyPart = content.getBodyPart(i);
-                    if (bodyPart instanceof IMAPBodyPart) {
-                        IMAPBodyPart part = (IMAPBodyPart) bodyPart;
-                        String contentType = part.getContentType();
-                        if (contentType.startsWith("TEXT/HTML")) {
-                            info.html = (String) part.getContent();
+                    String contentType = bodyPart.getContentType();
+
+                    if (contentType.startsWith("TEXT/HTML")) {
+                        info.html = (String) bodyPart.getContent();
+                    }
+                    if (contentType.startsWith("multipart/RELATED")) {
+                        MimeMultipart related = (MimeMultipart) bodyPart.getContent();
+                        for (int j = 0; j < related.getCount(); j++) {
+                            BodyPart subpart = related.getBodyPart(j);
+                            if (subpart.getContentType().startsWith("multipart/ALTERNATIVE")) {
+                                MimeMultipart alternative = (MimeMultipart) subpart.getContent();
+                                for (int k = 0; k < alternative.getCount(); k++) {
+                                    BodyPart subsubpart = alternative.getBodyPart(k);
+                                    if (subsubpart.getContentType().startsWith("TEXT/HTML")) {
+                                        info.html = (String) subsubpart.getContent();
+                                    }
+                                }
+                            }
+                            // TODO: stitch in inline images
                         }
                     }
                 }
