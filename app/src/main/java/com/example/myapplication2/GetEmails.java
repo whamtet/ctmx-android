@@ -3,6 +3,7 @@ package com.example.myapplication2;
 import android.util.Log;
 
 import com.sun.mail.imap.IMAPBodyPart;
+import com.sun.mail.imap.IMAPFolder;
 
 import org.json.simple.JSONAware;
 import org.json.simple.JSONObject;
@@ -16,7 +17,6 @@ import java.util.function.Function;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
-import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -29,7 +29,7 @@ public class GetEmails implements Function<String, String> {
 
     private static final int PAGE_SIZE = 3;
 
-    private Folder folder;
+    private IMAPFolder folder;
 
     private void setFolder(String user, String password) throws MessagingException {
         setFolder(user, password, "STARRED");
@@ -45,7 +45,7 @@ public class GetEmails implements Function<String, String> {
         Store store = session.getStore(url);
         store.connect();
 
-        this.folder = store.getFolder(folder);
+        this.folder = (IMAPFolder) store.getFolder(folder);
         this.folder.open(Folder.READ_ONLY);
 
     }

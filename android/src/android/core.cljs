@@ -28,7 +28,9 @@
   [:form.mt-4 {:id id :hx-post "panel:login" :hx-indicator "#spinner"}
    [:div.input-group.mb-2
     [:input.form-control
-     {:type "text" :placeholder "Username" :name "username" :value username :required true}]]
+     {:hx-post "login-wrapper"
+      :hx-target (str "#" id)
+      :type "text" :placeholder "Username" :name "username" :value username :required true}]]
    [:div.input-group.mb-2
     [:input.form-control
      {:type "text" :placeholder "Password" :name "password" :value password :required true}]]
@@ -38,12 +40,16 @@
     [:input.form-control {:type "submit" :value "Login"}]]
    util/loading])
 
+(ctmx/defcomponent ^:endpoint login-wrapper [req username password error?]
+  (let [password (if top-level? (storage/get-password username) password)]
+    (login id username password error?)))
+
 (ctmx/defcomponent ^:endpoint panel [req username password ^:edn email-data ^:int i command]
   (case command
     "login"
     (-> (interop/android-json "emails" {:username username :password password})
         (.then (fn [emails]
-                 (storage/set-password password) ;; store successful password
+                 (storage/set-password username password) ;; store successful password
                  (state-panel
                    id
                    username
@@ -51,7 +57,7 @@
                    emails
                    (emails/email-panel emails)))
                (fn [_]
-                 (login id username password true))))
+                 (login-wrapper req username password true))))
     "next"
     (-> (interop/android-json "emails" {:start (count email-data)})
         (.then (fn [emails]
@@ -76,7 +82,7 @@
       password
       email-data
       (emails/email-panel email-data))
-    (login id "matthew@molloy.link" (storage/get-password) false)))
+    (login-wrapper req "" "" false)))
 
 (def req {:params {}})
 

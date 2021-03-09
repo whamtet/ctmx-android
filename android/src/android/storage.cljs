@@ -1,10 +1,10 @@
 (ns android.storage
   (:require [alandipert.storage-atom :refer [local-storage]]))
 
-(def password (local-storage (atom "") :password))
+(def passwords (local-storage (atom {}) :passwords))
 
-(defn get-password []
-  @password)
+(defn get-password [k]
+  (@passwords k))
 
-(defn set-password [p]
-  (reset! password p))
+(defn set-password [k p]
+  (swap! passwords assoc k p))
