@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
         myWebView.getSettings().setBuiltInZoomControls(true);
         myWebView.getSettings().setJavaScriptEnabled(true);
         myWebView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE);
+        myWebView.getSettings().setDomStorageEnabled(true);
 
         // add implementation "androidx.webkit:webkit:1.2.0" to build.gradle
         final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()

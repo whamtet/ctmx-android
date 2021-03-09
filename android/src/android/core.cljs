@@ -1,6 +1,7 @@
 (ns android.core
   (:require
     [android.interop :as interop]
+    [android.storage :as storage]
     [android.ui.emails :as emails]
     [android.util :as util]
     cljs.reader
@@ -28,11 +29,10 @@
   [:form.mt-4 {:id id :hx-post "panel" :hx-indicator "#spinner"}
    [:div.input-group.mb-2
     [:input.form-control
-     {:type "text" :placeholder "Username" :name "username" :value username :required true}]
-    [:span.input-group-text "@gmail.com"]]
+     {:type "text" :placeholder "Username" :name "username" :value username :required true}]]
    [:div.input-group.mb-2
     [:input.form-control
-     {:type "password" :placeholder "Password" :name "password" :value password :required true}]]
+     {:type "text" :placeholder "Password" :name "password" :value password :required true}]]
    (when error?
      [:div.error-message.mb-2 "Invalid Credentials"])
    [:div.input-group
@@ -45,6 +45,7 @@
       :post
       (-> (interop/android-json "emails" {:username username :password password})
           (.then (fn [emails]
+                   (storage/set-password password) ;; store successful password
                    (state-panel
                      id
                      username
@@ -77,7 +78,7 @@
         password
         email-data
         (emails/email-panel email-data))
-      (login id "" "" false))))
+      (login id "" (storage/get-password) false))))
 
 (def req {:params {}})
 

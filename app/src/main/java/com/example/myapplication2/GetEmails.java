@@ -32,17 +32,21 @@ public class GetEmails implements Function<String, String> {
     private Folder folder;
 
     private void setFolder(String user, String password) throws MessagingException {
+        setFolder(user, password, "STARRED");
+    }
+
+    private void setFolder(String user, String password, String folder) throws MessagingException {
 
         Properties p = new Properties();
         p.setProperty("mail.imap.ssl.enable", "true");
         Session session = Session.getDefaultInstance(p);
 
-        URLName url = new URLName("imap", "imap.gmail.com", 993, "INBOX", user, password);
+        URLName url = new URLName("imap", "imap.fastmail.com", 993, folder, user, password);
         Store store = session.getStore(url);
         store.connect();
 
-        folder = store.getFolder("INBOX");
-        folder.open(Folder.READ_ONLY);
+        this.folder = store.getFolder(folder);
+        this.folder.open(Folder.READ_ONLY);
 
     }
 
